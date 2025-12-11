@@ -1,0 +1,25 @@
+# Python 編譯檔案
+__pycache__/
+*.py[cod]
+*$py.class
+
+# 環境變數檔案 (包含敏感資訊)
+.env
+
+# 虛擬環境
+venv/
+env/
+
+# IDE 設定檔
+.vscode/
+.idea/
+
+# 日誌檔案
+logs/
+*.log
+
+# 暫存檔
+*.tmp
+*.bak
+.DS_Store
+Thumbs.db
