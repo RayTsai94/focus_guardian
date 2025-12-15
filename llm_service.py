@@ -20,7 +20,7 @@ def parse_intent(user_text):
     prompt = f"""
     Parse user input into JSON.
     Commands:
-    1. Focus/Start: {{"intent": "start_focus", "duration": <minutes_int>}} (default 25)
+    1. Focus/Start: {{"intent": "start_focus", "duration": <minutes_int>}} (default 30)
     2. Stop/Rest: {{"intent": "stop_focus", "duration": 0}}
     
     Input: "{user_text}"
