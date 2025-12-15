@@ -14,7 +14,7 @@ class AudioManager:
         if os.path.exists(file_path):
             return file_path
         try:
-            tts = gTTS(text=text, lang='zh-tw')
+            tts = gTTS(text=text, lang='en')
             tts.save(file_path)
             return file_path
         except Exception as e:
@@ -41,4 +41,4 @@ class AudioManager:
         threading.Thread(target=self._play_thread, args=(text, cache_key)).start()
 
 if __name__ == "__main__":
-    AudioManager().speak("音訊系統測試正常", "test")
+    AudioManager().speak("Audio system test passed", "test-en")

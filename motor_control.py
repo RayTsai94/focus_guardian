@@ -12,7 +12,7 @@ class PanTiltController:
             self.current_tilt = 90
             self.center()
         except Exception as e:
-            print(f"Warning: °¨¹F±±¨ªì©l¤ƥ¢±Ñ ({e})¡A½нT»{ I2C ¬O§_¶}±Ò")
+            print(f"Warning: 馬達控制器初始化失敗({e})…請確認I2C是否開啟")
 
     def set_angle(self, channel, angle):
         if angle < 0: angle = 0
