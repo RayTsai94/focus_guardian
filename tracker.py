@@ -12,6 +12,7 @@ class FocusTracker:
         self.audio = AudioManager()
         self.is_running = False
         self.events_log = []
+        self.tracking_thread = None
         
         #  PICAMERA2 SETUP
         try:
@@ -42,11 +43,15 @@ class FocusTracker:
         self.is_running = True
         self.events_log = [] # Clear logs
         self.audio.speak(f"Focus mode started for {duration_minutes} minutes", "start")
-        threading.Thread(target=self._loop, args=(duration_minutes,)).start()
+        self.tracking_thread = threading.Thread(target=self._loop, args=(duration_minutes,))
+        self.tracking_thread.start()
 
-    def stop_tracking(self):
+        def stop_tracking(self):
+        self.audio._generate_mp3()
         self.is_running = False
-        self.audio.speak("Focus mode ended", "stop")
+        if self.tracking_thread and self.tracking_thread.is_alive():
+            self.tracking_thread.join(timeout=2.0)
+        self.audio.speak(f"Focus mode ended", "stop")
 
     def get_logs(self):
         return self.events_log
