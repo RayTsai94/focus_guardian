@@ -1,4 +1,13 @@
-# Focus Tracker 📱🎯
+
+# 專注力守門員 📱🎯
+<img width="631" height="339" alt="image" src="https://github.com/user-attachments/assets/26b2133b-ab53-4cd8-89c2-07f05a6c108c" />
+<img width="631" height="413" alt="image" src="https://github.com/user-attachments/assets/4315acd6-55b8-45d9-a821-ed01dcc7a597" />
+<img width="1380" height="1756" alt="image" src="https://github.com/user-attachments/assets/2c14746f-1b34-493d-9c6f-12e0c9244e39" />
+
+[![Focus Tracker Demo](https://img.youtube.com/vi/tIOz286DohM/maxresdefault.jpg)](https://youtube.com/shorts/tIOz286DohM?si=h_dDpBcybp6Eq0c6)
+
+##assembly
+<img width="780" height="633" alt="image" src="https://github.com/user-attachments/assets/1bf540db-fa24-442d-9eaf-13088ad09b48" />
 
 A smart focus tracking system that uses computer vision to monitor phone usage during study/work sessions. The system tracks your phone's position and alerts you when it enters the "forbidden zone" (face area), encouraging better focus habits.
 
