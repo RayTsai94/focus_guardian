@@ -15,15 +15,57 @@ A smart focus tracking system that uses computer vision to monitor phone usage d
 
 ### Core Functionality
 - **📷 Real-time Object Tracking**: Uses CSRT tracker to follow your phone's movement
+```
+# Initialize CSRT Tracker
+tracker = cv2.TrackerCSRT_create()
+center_x, center_y = self.WIDTH // 2, self.HEIGHT // 2
+bbox = (center_x - 30, center_y - 30, 60, 60)
+tracker.init(frame_bgr, bbox)
+
+# Update tracking in loop
+success, bbox = tracker.update(frame)
+if success:
+    x, y, w, h = [int(v) for v in bbox]
+    obj_x = x + w // 2
+    obj_y = y + h // 2
+```
 - **🎯 Zone-based Monitoring**: Distinguishes between safe (desk) and forbidden (face) areas
+
 - **🔊 Audio Feedback**: Voice alerts for violations and encouragements
+```
+def speak(self, text, cache_key=None):
+    threading.Thread(target=self._play_thread, args=(text, cache_key)).start()
+
+def _play_thread(self, text, cache_key):
+    # Generate MP3 using gTTS
+    tts = gTTS(text=text, lang='en')
+    tts.save(file_path)
+    
+    # Play using mpg123
+    cmd = f"mpg123 -q '{mp3_path}'"
+    subprocess.run(cmd, shell=True, check=False)
+```
 - **📊 Session Logging**: Tracks distraction events and generates summaries
 - **🎮 Motor Control**: Pan-tilt camera control for optimal tracking
+```
+# Zone thresholds
+self.SAFE_TILT = 80        # Looking down (Desk = Safe)
+self.FORBIDDEN_TILT = 110  # Looking up (Face = Violation)
 
-### Web Interface
-- **📺 Live Video Stream**: Real-time camera feed with tracking overlays
-- **🎨 Visual Indicators**: Zone boundaries and tracking status display
-- **📱 Responsive Design**: Works on desktop and mobile browsers
+# Zone detection logic
+tilt = self.controller.current_tilt
+if tilt > self.FORBIDDEN_TILT:
+    if self.last_zone != "FORBIDDEN":
+        print(">> Violation! Phone moved to face area.")
+        self.audio.speak("Please focus, do not look at your phone", "violation")
+        self.events_log.append({"type": "violation", "time": time.time()})
+        self.last_zone = "FORBIDDEN"
+elif tilt < self.SAFE_TILT:
+    if self.last_zone == "FORBIDDEN":
+        print(">> Back to focus.")
+        self.audio.speak("Good job, keep it up", "safe")
+        self.last_zone = "SAFE"
+```
 
 ### LINE Bot Integration
 - **💬 Chat Interface**: Start/stop sessions via LINE messaging
@@ -130,6 +172,11 @@ Open your browser and navigate to:
 ```
 http://localhost:5000
 ```
+Open another terminal:
+```
+http ngrok 5000
+```
+Paste the generated URL into the browser.
 
 ### 3. LINE Bot Commands
 Send messages to your LINE Bot:
@@ -275,6 +322,35 @@ For issues and questions:
 2. Review system logs
 3. Test individual components
 4. Create an issue with detailed error information
+
+## Technical Difficulty 
+
+1. 最初嘗試在 Raspbian Buster (Python 3.7.3) 上開發時，遇到了嚴重的軟體相容性問題。許多現代 AI SDK（如 google-generativeai）與影像工具不再支援過舊的系統環境
+
+2. 系統在嘗試實現語音回饋時，曾發生嚴重的音訊相依性損毀。嘗試安裝 ```pygame.mixer```、```mpg123``` 或 ```omxplayer``` 時，系統頻頻報錯「找不到 libSDL2_mixer」或「GLIBC 版本過舊」。這反映出在嵌入式系統上整合多媒體功能時，底層 C 函式庫與 Python 套件之間的連結極其脆弱，最終需透過手動安裝 libsdl2-dev 開發標頭檔，或改用系統級指令（如 espeak 或 mpg123 直接呼叫）來繞過複雜的 Python 依賴鏈。
+
+3. 在 Bookworm 系統中，Raspberry Pi 官方全面啟用了 libcamera 框架，並廢棄了舊版的 MMAL 介面。這導致傳統的 OpenCV 指令 ```cv2.VideoCapture(0)``` 無法直接存取 Pi Camera V1.3 (OV5647) 鏡頭。開發過程中曾嘗試透過 GStreamer 管道和 V4L2 串流轉發等方式修復，但最終證明最穩定的方案是重寫核心代碼，改用 picamera2 函式庫來直接獲取 NumPy 影像陣列。
+
+4. 在使用 picamera2 方案時，遇到了一個錯誤：
+```ValueError: numpy.dtype size changed (Expected 96 from C header, got 88 from PyObject)```。
+
+因為 NumPy 最近升級到了 2.0.0 以上版本，而專案依賴的 picamera2 內部 C 擴展套件（simplejpeg）是基於 NumPy 1.x 版本編譯的。所以需要：
+```
+pip uninstall numpy 
+
+pip freeze > requirements.txt
+
+# 刪除現有 venv
+rm -rf venv
+
+# 創建新的 venv，允許訪問系統套件
+python3 -m venv venv --system-site-packages
+
+# 啟動新環境
+source venv/bin/activate
+```
+
+5. Line 的Webhook不支援```http```開頭的網址，需要透過ngrok進行轉發
 
 ---
 
